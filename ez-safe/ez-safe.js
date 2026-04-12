@@ -79,12 +79,12 @@
             buffer.set(salt, SALT_OFFSET);
             buffer.set(iv, IV_OFFSET);
             buffer.set(new Uint8Array(data), DATA_OFFSET);
-            return buffer.toBase64();
+            return (MAGIC + buffer.toBase64());
         });
     }
 
     async function decrypt(password, data64) {
-        const buffer = Uint8Array.fromBase64(data64);
+        const buffer = Uint8Array.fromBase64(data64.slice(MAGIC.length));
         const salt = buffer.slice(SALT_OFFSET, SALT_OFFSET + SALT_SIZE);
         const iv = buffer.slice(IV_OFFSET, IV_OFFSET + IV_SIZE);
         const data = buffer.slice(DATA_OFFSET);
@@ -137,7 +137,7 @@
     const MAIN = append(createElement("div", {class: "vbox", style: "max-width: 100%; gap: 1em;"}),
         createElement("div", {
             class: "hbox",
-            inner: `${["📂", "💾", "📋", "🔗", "📄"].reduce(((a, c) => a + "<button>" + c + "</button>"), "")}${BOOKMARKLET ? `<span style="flex-grow: 1;"></span><button>❌</button>`: ''}`,
+            inner: `${["📂", "💾", "📋", "🔗", "📄", "🔓"].reduce(((a, c) => a + "<button>" + c + "</button>"), "")}${BOOKMARKLET ? `<span style="flex-grow: 1;"></span><button>❌</button>`: ''}`,
             style: "gap: 0.5em;"
         }),
         createElement("div", {inner: `<textarea rows="${SETTINGS.rows}" cols="${SETTINGS.cols}" placeholder="Edit/Drop" wrap="off" spellcheck="false"></textarea>`})
@@ -180,7 +180,7 @@
 
     append(BODY, TOP, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK);
 
-    const [MENU_OPEN, MENU_SAVE, MENU_COPY, MENU_LINK, MENU_PAGE, MENU_QUIT] = querySelectors(MAIN, "button");
+    const [MENU_OPEN, MENU_SAVE, MENU_COPY, MENU_LINK, MENU_PAGE, MENU_RAW, MENU_QUIT] = querySelectors(MAIN, "button");
     const [TEXT] = querySelectors(MAIN, "textarea");
     const [PW_OK, PW_CANCEL] = querySelectors(DLG_PASSWORD, "button");
     const [PW_ENTER, PW_CONFIRM] = querySelectors(DLG_PASSWORD, "input");
@@ -189,8 +189,6 @@
     //
     // handlers
     //
-
-    let SHIFT = false;
 
     const error = msg => {
         querySelectors(DLG_ERROR, "span")[0].innerHTML = msg;
@@ -264,7 +262,19 @@
         });
     };
 
-    async function update(data, clear, raw=false) {
+    const raw = () => MENU_RAW.style.borderStyle.length > 0;
+
+    MENU_RAW.onclick = evt => {
+        if (raw()) {
+            MENU_RAW.style.backgroundColor = "";
+            MENU_RAW.style.borderStyle = "";
+        } else {
+            MENU_RAW.style.backgroundColor = "orange";
+            MENU_RAW.style.borderStyle = "groove";
+        }
+    };
+
+    async function update(data, clear) {
         const update = txt => {
             if (clear) TEXT.value = "";
             const position = TEXT.selectionStart;
@@ -272,9 +282,9 @@
             TEXT.selectionStart = TEXT.selectionEnd = position + txt.length;
         };
 
-        if (!raw && data.startsWith(MAGIC) && (data != MAGIC)) {
+        if (!raw() && data.startsWith(MAGIC) && (data != MAGIC)) {
             get_password(false).then(pw =>
-                decrypt(pw, data.slice(MAGIC.length))
+                decrypt(pw, data)
             ).then(txt => {
                 update(txt);
             }).catch(e => {
@@ -287,33 +297,30 @@
         }
     }
 
-    const transfer = (data, raw=false) => {
+    const transfer = (data) => {
         const items = [...data.items];
         (
             (items.some(i => i.kind === "string"))? Promise.resolve({data: data.getData("text/plain"), clear: false}) :
             (items.some(i => i.kind === "file"))  ? data.files.item(0).text().then(d => Promise.resolve({data: d, clear: true})) :
                                                     Promise.reject(/*ignore*/)
         ).then(t => {
-            update(t.data, t.clear, raw);
+            update(t.data, t.clear);
         }).catch(e => DBG && e && log(e));
     };
 
     const ui_encrypt = handler => {
-        get_password().then(pw => {
-            const b = TEXT.selectionStart, e = TEXT.selectionEnd;
-            return encrypt(pw, (b == e) ? TEXT.value : TEXT.value.slice(b, e));
-        }).then(
-            handler
-        ).catch(e => DBG && e && log(e));
+        const b = TEXT.selectionStart, e = TEXT.selectionEnd;
+        const d = (b == e) ? TEXT.value : TEXT.value.slice(b, e);
+        (raw() ? Promise.resolve(d) : get_password().then(pw => encrypt(pw, d))).then(handler).catch(e => DBG && e && log(e));
     };
 
     const copy = () => {
-        ui_encrypt(d => {navigator.clipboard.writeText(format(MAGIC + d, SETTINGS.fmt));});
+        ui_encrypt(d => {navigator.clipboard.writeText(format(d, SETTINGS.fmt));});
     };
 
     const bookmark = link => {
         ui_encrypt(d => {
-            BOOKMARK.href = link(MAGIC + d);
+            BOOKMARK.href = link(d);
             DLG_BOOKMARK.showModal();
         });
     };
@@ -327,7 +334,6 @@
     };
 
     const open = () => {
-        const raw = SHIFT;
         const f = createElement("input");
         f.type = "file";
         f.style.display = "none";
@@ -336,7 +342,7 @@
             const r = new FileReader();
 
             r.onload = () => {
-                update(r.result, true, raw);
+                update(r.result, true);
             };
 
             r.onerror = () => {
@@ -352,7 +358,7 @@
 
     const save = () => {
         ui_encrypt(data64 => {
-            const blob = new Blob([format(MAGIC + data64, SETTINGS.fmt)], {type: "text/plain"});
+            const blob = new Blob([format(data64, SETTINGS.fmt)], {type: "text/plain"});
             const url = URL.createObjectURL(blob);
             const a = createElement("a");
             a.href = url;
@@ -380,12 +386,12 @@
         [MENU_PAGE, page],
         [BOOKMARK, preventDefault]
     ]) {
-        addListener(m, "click", h);
+        m.onclick = h;
     }
 
     addListener(TEXT, "paste", evt => {
         preventDefault(evt);
-        transfer(evt.clipboardData, KBD && SHIFT);
+        transfer(evt.clipboardData);
     });
 
     if (DND) {
@@ -403,23 +409,16 @@
                 if (evt.key == "s") {
                     preventDefault(evt);
                     save();
-                }
-                else if ((evt.key == "o") || (evt.key == "O")) {
+                } else if (evt.key == "o") {
                     preventDefault(evt);
                     open();
+                } else if (evt.key == "C") {
+                    preventDefault(evt);
+                    copy();
                 }
             }
         });
-
-        addListener(TOP, "keydown", evt => {
-            SHIFT = evt.shiftKey;
-        });
-        addListener(TOP, "keydup", evt => {
-            SHIFT = evt.shiftKey;
-        });
     }
-
-    TEXT.focus();
 
     //
     // check if crypto is available, disable everything otherwise

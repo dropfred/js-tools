@@ -13,13 +13,12 @@ _Note: Since `crypto` is used, a secure context (https) is required._
 ### Usage
 
 - `📂` / `Ctrl-O`: Open a file and replace current text. Prompt for the password if the data is encrypted.
-- `Shift-📂` / `Ctrl-Shift-O`: Open a file and replace current text.
 - `💾` / `Ctrl-S`: Save encrypted text to a file.
 - `📋` / `Ctrl-Shift-C`: Copy encrypted text to to clipboard.
 - `🔗`: Store encrypted text to a clipboard bookmark.
 - `📄`: Store encrypted text to a page bookmark.
+- `🔓`: Disable encryption/decryption.
 - `Ctrl-V`: Insert at current position (if text) or replace (if file) clipboard data. Prompt for the password if the data is encrypted.
-- `Ctrl-Shift-V`: Insert at current position (if text) or replace (if file) raw clipboard data.
 - `Drop`: Replace current text with dropped data. Prompt for the password if the data is encrypted.
 
 ### Code customization:
@@ -41,6 +40,8 @@ Disabling options reduces the minified size.
 ## ez-pw
 
 Simple deterministic strong password generator.
+
+The generated password follows the usual rules (at least one lowercase and one uppercase letter, at least one digit, and at least one symbol), and can be re-created if needed using the same `{name, key}` pair. The names are not sensible and can safely be leaked, and the key can be unique (one strong and easy to remember password stored in your brain only).
 
 _Note: Since `crypto` is used, a secure context (https) is required._
 
