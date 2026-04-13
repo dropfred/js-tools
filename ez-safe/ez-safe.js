@@ -39,61 +39,65 @@
     // encrypt/decrypt
     //
 
-    const SALT_OFFSET = 0;
-    const SALT_SIZE = 16;
+    const lock = (() => {
+        const SALT_OFFSET = 0;
+        const SALT_SIZE = 16;
 
-    const IV_OFFSET = SALT_OFFSET + SALT_SIZE;
-    const IV_SIZE = 12;
+        const IV_OFFSET = SALT_OFFSET + SALT_SIZE;
+        const IV_SIZE = 12;
 
-    const DATA_OFFSET = IV_OFFSET + IV_SIZE;
+        const DATA_OFFSET = IV_OFFSET + IV_SIZE;
 
-    async function get_key(password, salt) {
-        let key = await crypto.subtle.importKey(
-            "raw",
-            (new TextEncoder()).encode(password),
-            {name: "PBKDF2"},
-            false,
-            ["deriveKey"]
-        );
-        return crypto.subtle.deriveKey(
-            {
-                name: "PBKDF2",
-                salt: salt,
-                iterations: 600000,
-                hash: "SHA-256"
-            },
-            key,
-            {name: "AES-GCM", length: 256},
-            false,
-            ["encrypt", "decrypt"]
-        );
-    }
+        async function get_key(password, salt) {
+            let key = await crypto.subtle.importKey(
+                "raw",
+                (new TextEncoder()).encode(password),
+                {name: "PBKDF2"},
+                false,
+                ["deriveKey"]
+            );
+            return crypto.subtle.deriveKey(
+                {
+                    name: "PBKDF2",
+                    salt: salt,
+                    iterations: 600000,
+                    hash: "SHA-256"
+                },
+                key,
+                {name: "AES-GCM", length: 256},
+                false,
+                ["encrypt", "decrypt"]
+            );
+        }
 
-    async function encrypt(password, txt) {
-        const salt = crypto.getRandomValues(new Uint8Array(SALT_SIZE));
-        const iv = crypto.getRandomValues(new Uint8Array(IV_SIZE));
-        return get_key(password, salt).then(key =>
-            crypto.subtle.encrypt({name: "AES-GCM", iv: iv}, key, (new TextEncoder()).encode(txt))
-        ).then(data => {
-            const buffer = new Uint8Array(SALT_SIZE + IV_SIZE + data.byteLength);
-            buffer.set(salt, SALT_OFFSET);
-            buffer.set(iv, IV_OFFSET);
-            buffer.set(new Uint8Array(data), DATA_OFFSET);
-            return (MAGIC + buffer.toBase64());
-        });
-    }
+        async function encrypt(password, txt) {
+            const salt = crypto.getRandomValues(new Uint8Array(SALT_SIZE));
+            const iv = crypto.getRandomValues(new Uint8Array(IV_SIZE));
+            return get_key(password, salt).then(key =>
+                crypto.subtle.encrypt({name: "AES-GCM", iv: iv}, key, (new TextEncoder()).encode(txt))
+            ).then(data => {
+                const buffer = new Uint8Array(SALT_SIZE + IV_SIZE + data.byteLength);
+                buffer.set(salt, SALT_OFFSET);
+                buffer.set(iv, IV_OFFSET);
+                buffer.set(new Uint8Array(data), DATA_OFFSET);
+                return (MAGIC + buffer.toBase64());
+            });
+        }
 
-    async function decrypt(password, data64) {
-        const buffer = Uint8Array.fromBase64(data64.slice(MAGIC.length));
-        const salt = buffer.slice(SALT_OFFSET, SALT_OFFSET + SALT_SIZE);
-        const iv = buffer.slice(IV_OFFSET, IV_OFFSET + IV_SIZE);
-        const data = buffer.slice(DATA_OFFSET);
-        return get_key(password, salt).then(key =>
-            crypto.subtle.decrypt({name: "AES-GCM", iv: iv}, key, data)
-        ).then(data =>
-            (new TextDecoder()).decode(data)
-        );
-    }
+        async function decrypt(password, data64) {
+            const buffer = Uint8Array.fromBase64(data64.slice(MAGIC.length));
+            const salt = buffer.slice(SALT_OFFSET, SALT_OFFSET + SALT_SIZE);
+            const iv = buffer.slice(IV_OFFSET, IV_OFFSET + IV_SIZE);
+            const data = buffer.slice(DATA_OFFSET);
+            return get_key(password, salt).then(key =>
+                crypto.subtle.decrypt({name: "AES-GCM", iv: iv}, key, data)
+            ).then(data =>
+                (new TextDecoder()).decode(data)
+            );
+        }
+
+        return {encrypt, decrypt};
+    })();
 
     //
     // ui
@@ -284,7 +288,7 @@
 
         if (!raw() && data.startsWith(MAGIC) && (data != MAGIC)) {
             get_password(false).then(pw =>
-                decrypt(pw, data)
+                lock.decrypt(pw, data)
             ).then(txt => {
                 update(txt);
             }).catch(e => {
@@ -311,7 +315,7 @@
     const data = handler => {
         const b = TEXT.selectionStart, e = TEXT.selectionEnd;
         const d = (b == e) ? TEXT.value : TEXT.value.slice(b, e);
-        (raw() ? Promise.resolve(d) : get_password().then(pw => encrypt(pw, d))).then(handler).catch(e => DBG && e && log(e));
+        (raw() ? Promise.resolve(d) : get_password().then(pw => lock.encrypt(pw, d))).then(handler).catch(e => DBG && e && log(e));
     };
 
     const copy = () => {
