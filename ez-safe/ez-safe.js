@@ -308,18 +308,18 @@
         }).catch(e => DBG && e && log(e));
     };
 
-    const ui_encrypt = handler => {
+    const data = handler => {
         const b = TEXT.selectionStart, e = TEXT.selectionEnd;
         const d = (b == e) ? TEXT.value : TEXT.value.slice(b, e);
         (raw() ? Promise.resolve(d) : get_password().then(pw => encrypt(pw, d))).then(handler).catch(e => DBG && e && log(e));
     };
 
     const copy = () => {
-        ui_encrypt(d => {navigator.clipboard.writeText(format(d, SETTINGS.fmt));});
+        data(d => {navigator.clipboard.writeText(format(d, SETTINGS.fmt));});
     };
 
     const bookmark = link => {
-        ui_encrypt(d => {
+        data(d => {
             BOOKMARK.href = link(d);
             DLG_BOOKMARK.showModal();
         });
@@ -357,8 +357,8 @@
     };
 
     const save = () => {
-        ui_encrypt(data64 => {
-            const blob = new Blob([format(data64, SETTINGS.fmt)], {type: "text/plain"});
+        data(d => {
+            const blob = new Blob([format(d, SETTINGS.fmt)], {type: "text/plain"});
             const url = URL.createObjectURL(blob);
             const a = createElement("a");
             a.href = url;
