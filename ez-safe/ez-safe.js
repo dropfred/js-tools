@@ -297,14 +297,14 @@
         }
     }
 
-    const transfer = (data) => {
+    const transfer = (data, clear) => {
         const items = [...data.items];
         (
-            (items.some(i => i.kind === "string"))? Promise.resolve({data: data.getData("text/plain"), clear: false}) :
-            (items.some(i => i.kind === "file"))  ? data.files.item(0).text().then(d => Promise.resolve({data: d, clear: true})) :
+            (items.some(i => i.kind === "string"))? Promise.resolve(data.getData("text/plain")) :
+            (items.some(i => i.kind === "file"))  ? data.files.item(0).text() :
                                                     Promise.reject(/*ignore*/)
-        ).then(t => {
-            update(t.data, t.clear);
+        ).then(data => {
+            update(data, clear);
         }).catch(e => DBG && e && log(e));
     };
 
@@ -391,7 +391,7 @@
 
     addListener(TEXT, "paste", evt => {
         preventDefault(evt);
-        transfer(evt.clipboardData);
+        transfer(evt.clipboardData, false);
     });
 
     if (DND) {
@@ -399,7 +399,7 @@
 
         addListener(BODY, "drop", evt => {
             preventDefault(evt);
-            transfer(evt.dataTransfer);
+            transfer(evt.dataTransfer, true);
         });
     }
 
