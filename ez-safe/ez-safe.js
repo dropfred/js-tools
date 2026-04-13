@@ -48,7 +48,7 @@
 
         const DATA_OFFSET = IV_OFFSET + IV_SIZE;
 
-        async function get_key(password, salt) {
+        async function key(password, salt) {
             let key = await crypto.subtle.importKey(
                 "raw",
                 (new TextEncoder()).encode(password),
@@ -70,10 +70,10 @@
             );
         }
 
-        async function encrypt(password, txt) {
+        async function encrypt(pw, txt) {
             const salt = crypto.getRandomValues(new Uint8Array(SALT_SIZE));
             const iv = crypto.getRandomValues(new Uint8Array(IV_SIZE));
-            return get_key(password, salt).then(key =>
+            return key(pw, salt).then(key =>
                 crypto.subtle.encrypt({name: "AES-GCM", iv: iv}, key, (new TextEncoder()).encode(txt))
             ).then(data => {
                 const buffer = new Uint8Array(SALT_SIZE + IV_SIZE + data.byteLength);
@@ -84,12 +84,12 @@
             });
         }
 
-        async function decrypt(password, data64) {
+        async function decrypt(pw, data64) {
             const buffer = Uint8Array.fromBase64(data64.slice(MAGIC.length));
             const salt = buffer.slice(SALT_OFFSET, SALT_OFFSET + SALT_SIZE);
             const iv = buffer.slice(IV_OFFSET, IV_OFFSET + IV_SIZE);
             const data = buffer.slice(DATA_OFFSET);
-            return get_key(password, salt).then(key =>
+            return key(pw, salt).then(key =>
                 crypto.subtle.decrypt({name: "AES-GCM", iv: iv}, key, data)
             ).then(data =>
                 (new TextDecoder()).decode(data)
@@ -211,7 +211,7 @@
         return txt;
     };
 
-    const get_password = (confirm=true) => {
+    const password = (confirm=true) => {
         return new Promise((resolve, reject) => {
             const clear = () => {
                 removeListener(DLG_PASSWORD, "cancel", cancel);
@@ -287,7 +287,7 @@
         };
 
         if (!raw() && data.startsWith(MAGIC) && (data != MAGIC)) {
-            get_password(false).then(pw =>
+            password(false).then(pw =>
                 lock.decrypt(pw, data)
             ).then(txt => {
                 update(txt);
@@ -315,7 +315,7 @@
     const data = handler => {
         const b = TEXT.selectionStart, e = TEXT.selectionEnd;
         const d = (b == e) ? TEXT.value : TEXT.value.slice(b, e);
-        (raw() ? Promise.resolve(d) : get_password().then(pw => lock.encrypt(pw, d))).then(handler).catch(e => DBG && e && log(e));
+        (raw() ? Promise.resolve(d) : password().then(pw => lock.encrypt(pw, d))).then(handler).catch(e => DBG && e && log(e));
     };
 
     const copy = () => {
