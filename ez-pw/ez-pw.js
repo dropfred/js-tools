@@ -9,8 +9,13 @@
         SYMBOLS: "!?+-*/%&@$#",
         SIZE   : 16,
         EXTRA  : "",
-        DOTS   : false
     };
+
+    const KBD  = true;
+    const HOST = true;
+    const FILL = true;
+    const AUTO = false;
+    const DOTS = false;
 
     //
     // help minifier
@@ -32,6 +37,7 @@
     const remove = (e, ...cs) => {for (const c of cs) e.removeChild(c); return e;};
     const addListener = (e, t, h) => {e.addEventListener(t, h);};
     const querySelectorAll = (e, s) => e.querySelectorAll(s);
+    const preventDefault = e => e.preventDefault();
     const length = xs => xs.length;
 
     //
@@ -49,18 +55,7 @@
         s.disabled = true;
     }
 
-    // restore host page
-    const close = () => {
-        remove(DOC.head, STYLE);
-        remove(BODY, TOP);
-
-        for (const b of BK.ss) {
-            b.s.disabled = b.d;
-        }
-        for (const b of BK.cs) {
-            b.e.style.display = b.d;
-        }
-    };
+    const PWDS = [...querySelectorAll(BODY, "input")].filter(i => i.type === "password");
 
     const STYLE = createElement("style", {
         inner: [
@@ -80,6 +75,7 @@
     append(MAIN, append(createElement("div", {class: "hbox", style: "gap: 0.5em;"}),
         createElement("button", {inner: "⚙️"}),
         createElement("button", {inner: "📋"}),
+        createElement("button", FILL? {inner: "🔏"} : {style: "display: none;"}),
         createElement("span", {style: "flex-grow: 1;"}),
         createElement("button", {inner: "❌"})
     ));
@@ -100,7 +96,7 @@
     ));
     append(BODY, DLG_SETTINGS);
 
-    const [MENU_SETTINGS, MENU_COPY, MENU_QUIT] = querySelectorAll(MAIN, "button");
+    const [MENU_SETTINGS, MENU_COPY, MENU_FILL, MENU_QUIT] = querySelectorAll(MAIN, "button");
 
     const [NAME, KEY, PASSWORD] = querySelectorAll(MAIN, "input");
 
@@ -109,7 +105,9 @@
 
     PASSWORD.readOnly = true;
     PASSWORD.style.fontWeight = "bold";
-    if (SETTINGS.DOTS) KEY.type = "password";
+
+    if (DOTS) KEY.type = "password";
+    if (HOST) NAME.value = window.location.host;
 
     //
     // password creation
@@ -121,14 +119,15 @@
         return (s.substr(b, length(s)) + s.substr(0, b));
     };
 
-    const hash = () => {
+    // const hash = () => {
+    async function hash() {
         const alpha = "abcdefghijklmnopqrstuvwxyz";
         const ALPHA = alpha.toUpperCase();
         const digits = "0123456789";
         const syms = SETTINGS.SYMBOLS;
         const chars = alpha + ALPHA + digits + syms;
 
-        crypto.subtle.digest("SHA-256", new TextEncoder().encode(NAME.value.trim() + KEY.value.trim() + SETTINGS.EXTRA)).then(b => {
+        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(NAME.value.trim() + KEY.value.trim() + SETTINGS.EXTRA)).then(b => {
             return Array.from(new Uint8Array(b));
         }).then((bs) => {
             let s = bs[27] % 256;
@@ -142,20 +141,43 @@
             h = rotate(h + digits[bs[2] % length(digits)], bs[29]);
             if (syms.length) h = rotate(h + syms[bs[3] % length(syms)], bs[28]);
             return h;
-        }).then(h => {
-            PASSWORD.value = h;
         });
-    };
+    }
 
     //
     // handlers
     //
 
-    const update = () => {
+    const fill = () => {
+        PWDS.forEach(p => {p.value = PASSWORD.value;});
+    };
+
+    const password = () => {
+        hash().then(h => {
+            PASSWORD.value = h;
+        });
+    };
+
+    // restore host page
+    const close = ok => {
+        if (FILL && AUTO && ok) fill();
+        remove(DOC.head, STYLE);
+        remove(BODY, TOP);
+
+        for (const b of BK.ss) {
+            b.s.disabled = b.d;
+        }
+        for (const b of BK.cs) {
+            b.e.style.display = b.d;
+        }
+    };
+
+    const update = evt => {
+        preventDefault(evt);
         const ok = (length(NAME.value) > 0) && (length(KEY.value) > 0);
         if (ok) {
             MENU_COPY.disabled = false;
-            hash();
+            password();
         } else {
             MENU_COPY.disabled = true;
             PASSWORD.value = "";
@@ -167,10 +189,11 @@
         SETTINGS_OK.disabled = !SETTINGS_SYMBOLS.reportValidity();
     };
 
-    addListener(NAME, "keyup", update);
-    addListener(KEY, "keyup", update);
+    [NAME, KEY].forEach(i => {addListener(i, "keyup", update);});
 
     addListener(MENU_COPY, "click", () => {navigator.clipboard.writeText(PASSWORD.value);});
+ 
+    if (FILL) addListener(MENU_FILL, "click", fill);
 
     addListener(MENU_SETTINGS, "click", () => {
         SETTINGS_SYMBOLS.value = SETTINGS.SYMBOLS.replaceAll(" ", "");
@@ -180,9 +203,16 @@
         DLG_SETTINGS.showModal();
     });
 
-    addListener(MENU_QUIT, "click", close);
+    addListener(MENU_QUIT, "click", () => {close(true);});
+
+    if (KBD) {
+        addListener(TOP, "keydown", evt => {
+            if (evt.key === "Escape") close(false);
+        });        
+    }
 
     addListener(SETTINGS_SYMBOLS, "keyup", validate_settings);
+
     addListener(SETTINGS_SIZE, "input", validate_settings);
 
     addListener(SETTINGS_OK, "click", () => {
@@ -206,4 +236,4 @@
         PASSWORD.value = "Insecure context";
         PASSWORD.style.color = "red";
     }
-})({});
+})();

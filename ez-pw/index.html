@@ -7,10 +7,22 @@
 <body>
     <h1>Host page</h1>
     <p>
-        <button onclick="javascript:import(`./ez-pw.js?do_not_cache=${new Date().getTime()}`);">Test plain source</button>
+        Test plain <a id="plain" href="javascript:import(`./ez-pw.js?do_not_cache=${new Date().getTime()}`);">ez-pw</a> source on this page.
     </p>
     <p>
-        <a id="bookmarklet">ez-pw</a> as bookmarket (<i><code>Right-Click &gt; Bookmark Link...</code></i> to install).
+        Test minified <a id="bookmarklet">ez-pw</a> source on this page (<i><code>Right-Click &gt; Bookmark Link...</code></i> to install).
+    </p>
+    <p>
+        <div>Should <i>not</i> be filled when ez-pw is closed even if <code>🔏</code> has been clicked or <code>AUTO</code> is enabled:</div>
+        <input /> 
+    </p>
+    <p>
+        <div>Should be filled when ez-pw is closed if <code>🔏</code> has been clicked or <code>AUTO</code> is enabled:</div>
+        <input type="password" />
+    </p>
+    <p>
+        <div>Should also be filled when ez-pw is closed if <code>🔏</code> has been clicked or <code>AUTO</code> is enabled:</div>
+        <input type="password" />
     </p>
     <script>
         fetch("./ez-pw-min.js").then(src => src.text()).then(src => {document.getElementById("bookmarklet").href = "javascript:" + encodeURIComponent(src);});
