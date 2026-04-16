@@ -31,22 +31,35 @@ _Note: Since `crypto` is used, a secure context (https) is required._
 - `DBG`: Log errors if `true`. Defaults to `false`.
 - `SETTINGS`: specify default text area size, and Base64-encoded data line length (0 means no formatting). Defaults to `{cols: 40, rows: 30, fmt: 80}`
 
-Disabling options reduces the minified size.
+Disabling options slightly reduces the minified size.
 
 ### Known caveats
 
-- The host page returns to the top when the bookmarklet is closed.
+- The host page returns to the top when the bookmarklet is closed if no element is focused.
 
 ## ez-pw
 
-Simple deterministic strong password generator.
-
-The generated password follows the usual rules (at least one lowercase and one uppercase letter, at least one digit, and at least one symbol), and can be re-created if needed using the same `{name, key}` pair. The names are not sensible and can safely be leaked, and the key can be unique (one strong and easy to remember password stored in your brain only).
+Simple deterministic strong password generator. The generated password follows the usual rules (at least one lowercase and one uppercase letter, at least one digit, and at least one symbol), and can be re-created if needed using the same `{name, key}` pair. The names are not sensible and can safely be leaked with no dammage, and the key can be unique (one strong and easy to remember password stored in your brain only).
 
 _Note: Since `crypto` is used, a secure context (https) is required._
 
 [live](https://dropfred.github.io/js-tools/ez-pw/index.html)
 
+### Usage
+
+- `⚙️`: Open settings dialog.
+- `📋`: Copy password to clipboard.
+- `🔏`: Fill host page's passwords.
+
+### Code customization:
+
+- `HOST`: Pre-fill the hostname of the host page in the “Name” field. Defaults to `true`.
+- `FILL`: Support to fill the passwords of the host page. Defaults to `true`.
+- `KBD`: Support for `Escape` to close the bookmarklet. Defaults to `true`.
+- `DOTS`: Use `password` input for the `Key` field if `true`, plain text otherwise. Defaults to `false`.
+
+Disabling options slightly reduces the minified size.
+
 ### Known caveats
 
-- The host page returns to the top when the bookmarklet is closed.
+- The host page returns to the top when the bookmarklet is closed if no element is focused.

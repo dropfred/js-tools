@@ -14,7 +14,6 @@
     const KBD  = true;
     const HOST = true;
     const FILL = true;
-    const AUTO = false;
     const DOTS = false;
 
     //
@@ -41,11 +40,45 @@
     const length = xs => xs.length;
 
     //
+    // password creation
+    //
+
+    const rotate = (s, n) => {
+        let a = n % length(s);
+        let b = (a > 0) ? (length(s) - a) : -a;
+        return (s.substr(b, length(s)) + s.substr(0, b));
+    };
+
+    async function hash() {
+        const alpha = "abcdefghijklmnopqrstuvwxyz";
+        const ALPHA = alpha.toUpperCase();
+        const digits = "0123456789";
+        const syms = SETTINGS.SYMBOLS;
+        const chars = alpha + ALPHA + digits + syms;
+
+        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(NAME.value.trim() + KEY.value.trim() + SETTINGS.EXTRA)).then(b => {
+            return Array.from(new Uint8Array(b));
+        }).then((bs) => {
+            let s = bs[27] % 256;
+            let h = "";
+            for (let i = (syms.length? 4 : 3); i < SETTINGS.SIZE; ++i) {
+                h += chars[(bs[i % length(bs)] + s) % length(chars)];
+                s = (s + (256 % length(chars))) % 256;
+            }
+            h = rotate(h + alpha[bs[0] % length(alpha)], bs[31]);
+            h = rotate(h + ALPHA[bs[1] % length(ALPHA)], bs[30]);
+            h = rotate(h + digits[bs[2] % length(digits)], bs[29]);
+            if (syms.length) h = rotate(h + syms[bs[3] % length(syms)], bs[28]);
+            return h;
+        });
+    }
+
+    //
     // ui
     //
 
     // save and hide host page
-    const BK = {ss: [], cs: []};
+    const BK = {ss: [], cs: [], f: DOC.activeElement};
     for (const e of BODY.children) {
         BK.cs.push({e: e, d: e.style.display});
         e.style.display = "none";
@@ -110,57 +143,11 @@
     if (HOST) NAME.value = window.location.host;
 
     //
-    // password creation
-    //
-
-    const rotate = (s, n) => {
-        let a = n % length(s);
-        let b = (a > 0) ? (length(s) - a) : -a;
-        return (s.substr(b, length(s)) + s.substr(0, b));
-    };
-
-    // const hash = () => {
-    async function hash() {
-        const alpha = "abcdefghijklmnopqrstuvwxyz";
-        const ALPHA = alpha.toUpperCase();
-        const digits = "0123456789";
-        const syms = SETTINGS.SYMBOLS;
-        const chars = alpha + ALPHA + digits + syms;
-
-        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(NAME.value.trim() + KEY.value.trim() + SETTINGS.EXTRA)).then(b => {
-            return Array.from(new Uint8Array(b));
-        }).then((bs) => {
-            let s = bs[27] % 256;
-            let h = "";
-            for (let i = (syms.length? 4 : 3); i < SETTINGS.SIZE; ++i) {
-                h += chars[(bs[i % length(bs)] + s) % length(chars)];
-                s = (s + (256 % length(chars))) % 256;
-            }
-            h = rotate(h + alpha[bs[0] % length(alpha)], bs[31]);
-            h = rotate(h + ALPHA[bs[1] % length(ALPHA)], bs[30]);
-            h = rotate(h + digits[bs[2] % length(digits)], bs[29]);
-            if (syms.length) h = rotate(h + syms[bs[3] % length(syms)], bs[28]);
-            return h;
-        });
-    }
-
-    //
     // handlers
     //
 
-    const fill = () => {
-        PWDS.forEach(p => {p.value = PASSWORD.value;});
-    };
-
-    const password = () => {
-        hash().then(h => {
-            PASSWORD.value = h;
-        });
-    };
-
     // restore host page
-    const close = ok => {
-        if (FILL && AUTO && ok) fill();
+    const close = () => {
         remove(DOC.head, STYLE);
         remove(BODY, TOP);
 
@@ -170,6 +157,18 @@
         for (const b of BK.cs) {
             b.e.style.display = b.d;
         }
+        console.log("focus", BK.f);
+        if (BK.f) BK.f.focus();
+    };
+
+    const fill = () => {
+        PWDS.forEach(p => {p.value = PASSWORD.value;});
+    };
+
+    const password = () => {
+        hash().then(h => {
+            PASSWORD.value = h;
+        });
     };
 
     const update = evt => {
@@ -203,12 +202,13 @@
         DLG_SETTINGS.showModal();
     });
 
-    addListener(MENU_QUIT, "click", () => {close(true);});
+    addListener(MENU_QUIT, "click", () => {close();});
 
     if (KBD) {
+        TOP.tabIndex = 0;
         addListener(TOP, "keydown", evt => {
-            if (evt.key === "Escape") close(false);
-        });        
+            if (evt.key === "Escape") close();
+        });
     }
 
     addListener(SETTINGS_SYMBOLS, "keyup", validate_settings);
