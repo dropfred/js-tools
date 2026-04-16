@@ -14,14 +14,11 @@
         </div>
         </div>
     </p>
-    <!-- <p>
-        <button onclick="javascript:import(`./ez-safe.js?do_not_cache=${new Date().getTime()}`);">Test plain source</button>
-    </p> -->
     <p>
-        Test plain <a id="plain" href="javascript:import(`./ez-safe.js?do_not_cache=${new Date().getTime()}`);">ez-safe</a> source on this page.
+        Test plain source: <a id="plain" href="javascript:import(`./ez-safe.js?do_not_cache=${new Date().getTime()}`);">ez-safe</a>
     </p>
     <p>
-        Test minified <a id="bookmarklet">ez-safe</a> source on this page (<i><code>Right-Click &gt; Bookmark Link...</code></i> to install).
+        Test minified source (<i><code>Right-Click &gt; Bookmark Link...</code></i> to install): <a id="bookmarklet">ez-safe</a>
     </p>
     <script>
         fetch("./ez-safe-min.js").then(src => src.text()).then(src => {document.getElementById("bookmarklet").href = "javascript:" + encodeURIComponent(src);});

@@ -7,22 +7,22 @@
 <body>
     <h1>Host page</h1>
     <p>
-        Test plain <a id="plain" href="javascript:import(`./ez-pw.js?do_not_cache=${new Date().getTime()}`);">ez-pw</a> source on this page.
+        Test plain source: <a id="plain" href="javascript:import(`./ez-pw.js?do_not_cache=${new Date().getTime()}`);">ez-pw</a>
     </p>
     <p>
-        Test minified <a id="bookmarklet">ez-pw</a> source on this page (<i><code>Right-Click &gt; Bookmark Link...</code></i> to install).
+        Test minified source (<i><code>Right-Click &gt; Bookmark Link...</code></i> to install): <a id="bookmarklet">ez-pw</a>
     </p>
     <p>
-        <div>Should <i>not</i> be filled even if <code>🔏</code> has been clicked:</div>
+        <div>Should be filled when the bookmarklet is closed if <code>🔏</code> has been clicked:</div>
+        <input type="password" />
+    </p>
+    <p>
+        <div>Should also be filled when the bookmarklet is closed if <code>🔏</code> has been clicked:</div>
+        <input type="password" />
+    </p>
+    <p>
+        <div>Should <i>not</i> be filled when the bookmarklet is closed, even if <code>🔏</code> has been clicked:</div>
         <input /> 
-    </p>
-    <p>
-        <div>Should be filled if <code>🔏</code> has been clicked:</div>
-        <input type="password" />
-    </p>
-    <p>
-        <div>Should also be filled if <code>🔏</code> has been clicked:</div>
-        <input type="password" />
     </p>
     <script>
         [...document.querySelectorAll("input")].forEach(i => i.onmouseenter = () => {i.title = i.value;});
