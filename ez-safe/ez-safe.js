@@ -104,7 +104,7 @@
     //
 
     // save and hide host page
-    const BK = {ss: [], cs: []};
+    const BK = {ss: [], cs: [], f: DOC.activeElement};
     for (const e of BODY.children) {
         BK.cs.push({e: e, d: e.style.display});
         e.style.display = "none";
@@ -113,18 +113,6 @@
         BK.ss.push({s: s, d: s.disabled});
         s.disabled = true;
     }
-    // restore host page
-    const close = () => {
-        remove(DOC.head, STYLE);
-        for (const e of [TOP, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK]) remove(BODY, e);
-
-        for (const b of BK.ss) {
-            b.s.disabled = b.d;
-        }
-        for (const b of BK.cs) {
-            b.e.style.display = b.d;
-        }
-    };
 
     const STYLE = createElement("style", {
         inner: [
@@ -193,6 +181,20 @@
     //
     // handlers
     //
+
+    // restore host page
+    const close = () => {
+        remove(DOC.head, STYLE);
+        for (const e of [TOP, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK]) remove(BODY, e);
+
+        for (const b of BK.ss) {
+            b.s.disabled = b.d;
+        }
+        for (const b of BK.cs) {
+            b.e.style.display = b.d;
+        }
+        if (BK.f) BK.f.focus();
+    };
 
     const error = msg => {
         querySelectors(DLG_ERROR, "span")[0].innerHTML = msg;
