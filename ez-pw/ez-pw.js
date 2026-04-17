@@ -36,7 +36,6 @@
     const remove = (e, ...cs) => {for (const c of cs) e.removeChild(c); return e;};
     const addListener = (e, t, h) => {e.addEventListener(t, h);};
     const querySelectorAll = (e, s) => e.querySelectorAll(s);
-    const preventDefault = e => e.preventDefault();
     const length = xs => xs.length;
 
     //
@@ -123,7 +122,7 @@
 
     const DLG_SETTINGS = append(createElement("dialog"), append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
         createElement("div", {class: "vbox", inner: '<span>Symbols:</span><input spellcheck="false" />'}),
-        createElement("div", {class: "vbox", inner: '<div><span>Size:</span><span id="pw-size"></span></div><input required type="range" min="4" max="48" />'}),
+        createElement("div", {class: "vbox", inner: '<div><span>Size:</span><output></output></div><input required type="range" min="4" max="48" />'}),
         createElement("div", {class: "vbox", inner: '<span>Extra:</span><input spellcheck="false" />'}),
         createElement("div", {class: "hbox", inner: '<button>Ok</button><button>Cancel</button>', style: "gap: 1em;"})
     ));
@@ -157,7 +156,6 @@
         for (const b of BK.cs) {
             b.e.style.display = b.d;
         }
-        console.log("focus", BK.f);
         if (BK.f) BK.f.focus();
     };
 
@@ -165,26 +163,19 @@
         PWDS.forEach(p => {p.value = PASSWORD.value;});
     };
 
-    const password = () => {
-        hash().then(h => {
-            PASSWORD.value = h;
-        });
-    };
-
-    const update = evt => {
-        preventDefault(evt);
+    const update = () => {
         const ok = (length(NAME.value) > 0) && (length(KEY.value) > 0);
         if (ok) {
-            MENU_COPY.disabled = false;
-            password();
+            MENU_COPY.disabled = MENU_FILL.disabled = false;
+            hash().then(h => {PASSWORD.value = h;});
         } else {
-            MENU_COPY.disabled = true;
+            MENU_COPY.disabled = MENU_FILL.disabled = true;
             PASSWORD.value = "";
         }
     };
     
-    const validate_settings = () => {
-        DOC.getElementById("pw-size").innerText = SETTINGS_SIZE.value;
+    const settings = () => {
+        querySelectorAll(DLG_SETTINGS, "output")[0].textContent = SETTINGS_SIZE.value;
         SETTINGS_OK.disabled = !SETTINGS_SYMBOLS.reportValidity();
     };
 
@@ -198,7 +189,7 @@
         SETTINGS_SYMBOLS.value = SETTINGS.SYMBOLS.replaceAll(" ", "");
         SETTINGS_SIZE.value = SETTINGS.SIZE.toString();
         SETTINGS_EXTRA.value = SETTINGS.EXTRA.trim();
-        validate_settings();
+        settings();
         DLG_SETTINGS.showModal();
     });
 
@@ -211,9 +202,9 @@
         });
     }
 
-    addListener(SETTINGS_SYMBOLS, "keyup", validate_settings);
+    addListener(SETTINGS_SYMBOLS, "keyup", settings);
 
-    addListener(SETTINGS_SIZE, "input", validate_settings);
+    addListener(SETTINGS_SIZE, "input", settings);
 
     addListener(SETTINGS_OK, "click", () => {
         SETTINGS.SYMBOLS = SETTINGS_SYMBOLS.value;
@@ -223,6 +214,8 @@
         update();
     });
     addListener(SETTINGS_CANCEL, "click", () => DLG_SETTINGS.close());
+
+    update();
 
     //
     // check if crypto is available, disable everything otherwise.
