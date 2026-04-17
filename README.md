@@ -12,20 +12,20 @@ _Note: Since `crypto` is used, a secure context (https) is required._
 
 ### Usage
 
-- `📂` / `Ctrl-O`: Open a file and replace current text. Prompt for the password if the data is encrypted.
+- `📂` / `Ctrl-O`: Open a file and replace current content. Prompt for the password if the data is encrypted.
 - `💾` / `Ctrl-S`: Save encrypted text to a file.
-- `📋` / `Ctrl-Shift-C`: Copy encrypted text to to clipboard.
-- `🔗`: Store encrypted text to a clipboard bookmark.
-- `📄`: Store encrypted text to a page bookmark.
+- `📋` / `Ctrl-Shift-C`: Copy encrypted text to the clipboard.
+- `🔗`: Store encrypted text as a clipboard bookmark.
+- `📄`: Store encrypted text as a data bookmark.
 - `🔓`: Disable encryption/decryption.
-- `Ctrl-V`: Insert at current position (if text) or replace (if file) clipboard data. Prompt for the password if the data is encrypted.
-- `Drop`: Replace current text with dropped data. Prompt for the password if the data is encrypted.
+- `Ctrl-V`: Insert clipboard data at current position. Prompt for the password if the data is encrypted.
+- `Drop`: Replace content with dropped data. Prompt for the password if the data is encrypted.
 
 ### Code customization:
 
-- `MAGIC`: Prefix string used to distinguish encrypted text from plain text. Defaults to `🔒`.
+- `MAGIC`: Prefix string used to distinguish encrypted data from plain text. Defaults to `🔒`.
 - `BOOKMARKLET`: Specify whether the code is intended to be used as a bookmarklet. Defaults to `true`.
-- `DOTS`: Use `password` inputs if `true`, plain text otherwise. Defaults to `true`.
+- `DOTS`: Use `password` inputs if `true`, text otherwise. Defaults to `true`.
 - `DND`: Drag and drop support if `true`. Defaults to `true`.
 - `KBD`: Support for `ctrl-c` / `ctrl-v` and `ctrl-s` if `true`. Defaults to `true`.
 - `DBG`: Log errors if `true`. Defaults to `false`.
@@ -47,9 +47,9 @@ _Note: Since `crypto` is used, a secure context (https) is required._
 
 ### Usage
 
-- `⚙️`: Open settings dialog.
-- `📋`: Copy password to clipboard.
-- `🔏`: Fill host page's passwords.
+- `⚙️`: Open the settings dialog.
+- `📋`: Copy password to the clipboard.
+- `🔏`: Fill in all password fields in the host page.
 
 ### Code customization:
 
