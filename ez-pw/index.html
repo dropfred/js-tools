@@ -3,30 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
+    <style>input {margin-left: 1em; margin-top: 1em;}</style>
 </head>
 <body>
-    <h1>Host page</h1>
+    <h1>Random page</h1>
     <p>
-        Test plain source: <a id="plain" href="javascript:import(`./ez-pw.js?do_not_cache=${new Date().getTime()}`);">ez-pw</a>
+        Run plain source: <a href="javascript:import(`./ez-pw.js?do_not_cache=${new Date().getTime()}`);">ez-pw</a>
     </p>
     <p>
-        Test minified source (<i><code>Right-Click &gt; Bookmark Link...</code></i> to install): <a id="bookmarklet">ez-pw</a>
+        Run minified source: <a id="bookmarklet">ez-pw</a> (Save link as bookmark to install)
     </p>
     <p>
-        <div>Should be filled when the bookmarklet is closed if <code>🔏</code> has been clicked:</div>
-        <input type="password" />
+        <div>The two password fields below should be filled in with the generated password when <code>🔏</code> is clicked:</div>
+        <div><input type="password" /></div>
+        <div><input type="password" /></div>
     </p>
     <p>
-        <div>Should also be filled when the bookmarklet is closed if <code>🔏</code> has been clicked:</div>
-        <input type="password" />
-    </p>
-    <p>
-        <div>Should <i>not</i> be filled when the bookmarklet is closed, even if <code>🔏</code> has been clicked:</div>
-        <input /> 
+        <div>The text field below should <i>not</i> be filled in, even if <code>🔏</code> is clicked:</div>
+        <div><input /></div>
     </p>
     <script>
-        [...document.querySelectorAll("input")].forEach(i => i.onmouseenter = () => {i.title = i.value;});
-        fetch("./ez-pw-min.js").then(src => src.text()).then(src => {document.getElementById("bookmarklet").href = "javascript:" + encodeURIComponent(src);});
+        const bookmarklet = document.getElementById("bookmarklet");
+        const links = document.querySelectorAll("a");
+        const inputs = document.querySelectorAll("input");
+        fetch("./ez-pw-min.js").then(src => src.text()).then(src => {
+            bookmarklet.href = "javascript:" + encodeURIComponent(src);
+        });
+        for (const a of links) {a.onclick = () => {for (const i of inputs) {i.value = "";}}}
+        for (const i of inputs) {i.onmouseenter = () => {i.title = i.value;}}
     </script>
 </body>
 </html>

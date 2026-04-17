@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, interactive-widget=resizes-content">
 </head>
 <body>
-    <h1>Host page</h1>
+    <h1>Random page</h1>
     <p>
         <div>The data below should be decrypted as <i>secret</i> using password <i><code>1234</code></i>:</div>
         <div style="margin: 1em; display: flex; flex-direction: column; gap: 0.5em;">
@@ -15,13 +15,15 @@
         </div>
     </p>
     <p>
-        Test plain source: <a id="plain" href="javascript:import(`./ez-safe.js?do_not_cache=${new Date().getTime()}`);">ez-safe</a>
+        Run plain source: <a id="plain" href="javascript:import(`./ez-safe.js?do_not_cache=${new Date().getTime()}`);">ez-safe</a>
     </p>
     <p>
-        Test minified source (<i><code>Right-Click &gt; Bookmark Link...</code></i> to install): <a id="bookmarklet">ez-safe</a>
+        Run minified source: <a id="bookmarklet">ez-safe</a> (Save link as bookmark to install)
     </p>
     <script>
-        fetch("./ez-safe-min.js").then(src => src.text()).then(src => {document.getElementById("bookmarklet").href = "javascript:" + encodeURIComponent(src);});
+        fetch("./ez-safe-min.js").then(src => src.text()).then(src => {
+            document.getElementById("bookmarklet").href = "javascript:" + encodeURIComponent(src);
+        });
     </script>
 </body>
 </html>
