@@ -126,7 +126,7 @@
         createElement("div", {class: "vbox", inner: '<span>Extra:</span><input spellcheck="false" />'}),
         createElement("div", {class: "hbox", inner: '<button>Ok</button><button>Cancel</button>', style: "gap: 1em;"})
     ));
-    append(BODY, DLG_SETTINGS);
+    append(TOP, DLG_SETTINGS);
 
     const [MENU_SETTINGS, MENU_COPY, MENU_FILL, MENU_QUIT] = querySelectorAll(MAIN, "button");
 
