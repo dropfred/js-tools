@@ -11,7 +11,6 @@
         EXTRA  : "",
     };
 
-    const KBD  = true;
     const HOST = true;
     const FILL = true;
     const DOTS = false;
@@ -26,7 +25,7 @@
         const e = DOC.createElement(t);
         if (c) {
             if (c.id   ) e.id = c.id;
-            if (c.class) e.classList.add(c.class);
+            if (c.class) {for (const n of c.class.split(" ")) e.classList.add(n);}
             if (c.style) e.style.cssText += c.style;
             if (c.inner) e.innerHTML = c.inner;
         }
@@ -93,16 +92,18 @@
         inner: [
             "body {font-family: sans-serif;}",
             "input {font-family: monospace; text-align: center;}",
-            ".hbox {display: flex;} .vbox {display: flex; flex-direction: column;}",
-            "dialog {margin-top: 2em;} dialog button {min-width: 5em;}"
+            ".hbox {display: flex;} .vbox {display: flex; flex-direction: column;} .vbox .vbox {gap: 0.25em;}",
+            "dialog {margin-top: 2em; padding: 0.5em;}",
+            ".large button {min-width: 3em;}",
+            ".top::backdrop {background: none;}"
         ].join(" ")
     });
     append(DOC.head, STYLE);
 
-    const TOP = createElement("div", {class: "hbox", style: "justify-content: center;"});
+    const TOP = createElement("dialog", {class: "top"});
     append(BODY, TOP);
 
-    const MAIN = createElement("div", {class: "vbox", style: "gap: 1em; max-width: 100%;"});
+    const MAIN = createElement("div", {class: "vbox", style: "gap: 1em;"});
 
     append(MAIN, append(createElement("div", {class: "hbox", style: "gap: 0.5em;"}),
         createElement("button", {inner: "⚙️"}),
@@ -114,7 +115,7 @@
 
     append(MAIN, append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
         createElement("div", {class: "vbox", inner: "<span>Name:</span><input />"}),
-        createElement("div", {class: "vbox", inner: "<span>Key:</span><input />"}),
+        createElement("div", {class: "vbox", inner: "<span>Key:</span><input /><input />"}),
         createElement("div", {class: "vbox", inner: "<span>Password:</span><input />"})
     ));
  
@@ -124,13 +125,13 @@
         createElement("div", {class: "vbox", inner: '<span>Symbols:</span><input spellcheck="false" />'}),
         createElement("div", {class: "vbox", inner: '<div><span>Size:</span><output></output></div><input required type="range" min="4" max="48" />'}),
         createElement("div", {class: "vbox", inner: '<span>Extra:</span><input spellcheck="false" />'}),
-        createElement("div", {class: "hbox", inner: '<button>Ok</button><button>Cancel</button>', style: "gap: 1em;"})
+        createElement("div", {class: "hbox large", inner: '<button>✔️</button><button>❌</button>', style: "gap: 0.5em; justify-content: right;"})
     ));
     append(TOP, DLG_SETTINGS);
 
     const [MENU_SETTINGS, MENU_COPY, MENU_FILL, MENU_QUIT] = querySelectorAll(MAIN, "button");
 
-    const [NAME, KEY, PASSWORD] = querySelectorAll(MAIN, "input");
+    const [NAME, KEY, CONFIRM, PASSWORD] = querySelectorAll(MAIN, "input");
 
     const [SETTINGS_SYMBOLS, SETTINGS_SIZE, SETTINGS_EXTRA] = querySelectorAll(DLG_SETTINGS, "input");
     const [SETTINGS_OK, SETTINGS_CANCEL] = querySelectorAll(DLG_SETTINGS, "button");
@@ -138,7 +139,12 @@
     PASSWORD.readOnly = true;
     PASSWORD.style.fontWeight = "bold";
 
-    if (DOTS) KEY.type = "password";
+    if (DOTS) {
+        KEY.type = "password";
+        CONFIRM.type = "password";
+    } else {
+        CONFIRM.style.display = "none";
+    }
     if (HOST) NAME.value = window.location.host;
 
     //
@@ -164,7 +170,7 @@
     };
 
     const update = () => {
-        const ok = (length(NAME.value) > 0) && (length(KEY.value) > 0);
+        const ok = (length(NAME.value) > 0) && (length(KEY.value) > 0) && (!DOTS || (KEY.value == CONFIRM.value));
         if (ok) {
             MENU_COPY.disabled = MENU_FILL.disabled = false;
             hash().then(h => {PASSWORD.value = h;});
@@ -175,11 +181,12 @@
     };
     
     const settings = () => {
+        // SETTINGS_SIZE.title = SETTINGS_SIZE.value;
         querySelectorAll(DLG_SETTINGS, "output")[0].textContent = SETTINGS_SIZE.value;
         SETTINGS_OK.disabled = !SETTINGS_SYMBOLS.reportValidity();
     };
 
-    [NAME, KEY].forEach(i => {addListener(i, "keyup", update);});
+    [NAME, KEY, CONFIRM].forEach(i => {addListener(i, "keyup", update);});
 
     addListener(MENU_COPY, "click", () => {navigator.clipboard.writeText(PASSWORD.value);});
  
@@ -193,14 +200,9 @@
         DLG_SETTINGS.showModal();
     });
 
-    addListener(MENU_QUIT, "click", () => {close();});
+    addListener(TOP, "cancel", close);
 
-    if (KBD) {
-        TOP.tabIndex = 0;
-        addListener(TOP, "keydown", evt => {
-            if (evt.key === "Escape") close();
-        });
-    }
+    addListener(MENU_QUIT, "click", close);
 
     addListener(SETTINGS_SYMBOLS, "keyup", settings);
 
@@ -216,6 +218,7 @@
     addListener(SETTINGS_CANCEL, "click", () => DLG_SETTINGS.close());
 
     update();
+    TOP.showModal();
 
     //
     // check if crypto is available, disable everything otherwise.
