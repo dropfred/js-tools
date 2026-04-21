@@ -23,7 +23,7 @@
         const e = DOC.createElement(t);
         if (c) {
             if (c.id   ) e.id = c.id;
-            if (c.class) e.classList.add(c.class);
+            if (c.class) {for (const n of c.class.split(/\s+/)) e.classList.add(n);}
             if (c.style) e.style.cssText += c.style;
             if (c.inner) e.innerHTML = c.inner;
         }
@@ -118,20 +118,26 @@
         inner: [
             "body {font-family: sans-serif;}",
             "input {font-family: monospace; text-align: center;}",
-            ".hbox {display: flex;} .vbox {display: flex; flex-direction: column;}",
-            "dialog {margin-top: 2em;} dialog button {min-width: 5em;}",
+            "dialog {margin-top: 2em; padding: 0.5em;}",
+            "dialog::backdrop {backdrop-filter: blur(2px);}",
+            "hr {width: 100%;}",
+            ".hbox {display: flex; gap: 0.5em;} .vbox {display: flex; flex-direction: column; gap: 0.5em;}",
+            ".txt {justify-content: center;}",
+            ".txt button {min-width: 5em;}",
+            ".top {margin-top: 0.5em; border-width: 2px; border-color: lightgray;}",
+            ".top::backdrop {background: none;}"
         ].join(" ")
     });
     append(DOC.head, STYLE);
  
-    const TOP = createElement("div", {class: "hbox", style: "justify-content: center;"});
+    const TOP = createElement("dialog", {class: "top"});
 
-    const MAIN = append(createElement("div", {class: "vbox", style: "max-width: 100%; gap: 1em;"}),
+    const MAIN = append(createElement("div", {class: "vbox"}),
         createElement("div", {
             class: "hbox",
-            inner: `${["📂", "💾", "📋", "🔗", "📄", "🔓"].reduce(((a, c) => a + "<button>" + c + "</button>"), "")}${BOOKMARKLET ? `<span style="flex-grow: 1;"></span><button>❌</button>`: ''}`,
-            style: "gap: 0.5em;"
+            inner: `${["📂", "💾", "📋", "🔗", "📄", "🔓"].reduce(((a, c) => a + "<button>" + c + "</button>"), "")}${BOOKMARKLET ? `<span style="flex-grow: 1;"></span><button>❌</button>`: ''}`
         }),
+        createElement("hr"),
         createElement("div", {inner: `<textarea rows="${SETTINGS.rows}" cols="${SETTINGS.cols}" placeholder="Edit/Drop" wrap="off" spellcheck="false"></textarea>`})
     );
     append(TOP, MAIN);
@@ -140,10 +146,12 @@
         "dialog", {
             inner:
                 '<div class="vbox" style="gap: 1em;">' +
-                    "<span>Password:</span>" +
-                    `<input required minlength="${SETTINGS.min}" ${DOTS? 'placeholder="Enter password" type="password" ' : ""}/>` +
-                    (DOTS? '<input placeholder="Confirm password" type="password"/>' : "") +
-                    '<div class="hbox" style="gap: 1em;"><button>Ok</button><button>Cancel</button></div>' +
+                    '<div class="vbox">' +
+                        "<span>Password:</span>" +
+                        `<input required minlength="${SETTINGS.min}" ${DOTS? 'placeholder="Enter password" type="password" ' : ""}/>` +
+                        (DOTS? '<input placeholder="Confirm password" type="password"/>' : "") +
+                    "</div>" +
+                    '<div class="hbox txt"><button>Ok</button><button>Cancel</button></div>' +
                 "</div>"
         }
     );
@@ -152,8 +160,8 @@
         "dialog", {
             inner:
                 '<div class="vbox" style="gap: 1em; align-items: center;">' +
-                    "<span></span>" +
-                    "<div><button>Close</button></div>" +
+                    '<output style="text-align: center;"></output>' +
+                    '<div class="hbox txt"><button>Close</button></div>' +
                 "</div>",
             style: "border-color: red;"
         }
@@ -165,7 +173,7 @@
                 '<div class="vbox" style="gap: 1em; align-items: center;">' +
                     "<span>Save data as bookmark:</span>" +
                     '<a href="/">data</a>' +
-                    "<div><button>Close</button></div>" +
+                    '<div class="hbox txt"><button>Close</button></div>' +
                 "</div>"
         }
     );
@@ -197,7 +205,7 @@
     };
 
     const error = msg => {
-        querySelectors(DLG_ERROR, "span")[0].innerHTML = msg;
+        querySelectors(DLG_ERROR, "output")[0].innerHTML = msg;
         DLG_ERROR.showModal();
     };
 
@@ -376,6 +384,7 @@
         });
     };
 
+    addListener(TOP, "cancel", close);
     if (BOOKMARKLET) {
         addListener(MENU_QUIT, "click", close);
     }
@@ -435,4 +444,6 @@
         TEXT.placeholder = "Insecure context"
         TEXT.style.color = "red";
     }
+
+    TOP.showModal();
 })();

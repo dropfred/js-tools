@@ -25,7 +25,7 @@
         const e = DOC.createElement(t);
         if (c) {
             if (c.id   ) e.id = c.id;
-            if (c.class) {for (const n of c.class.split(" ")) e.classList.add(n);}
+            if (c.class) {for (const n of c.class.split(/\s+/)) e.classList.add(n);}
             if (c.style) e.style.cssText += c.style;
             if (c.inner) e.innerHTML = c.inner;
         }
@@ -94,9 +94,12 @@
             "input {font-family: monospace; text-align: center;}",
             "dialog {margin-top: 2em; padding: 0.5em;}",
             "dialog::backdrop {backdrop-filter: blur(2px);}",
-            ".hbox {display: flex;} .vbox {display: flex; flex-direction: column;} .vbox .vbox {gap: 0.25em;}",
-            ".large button {min-width: 3em;}",
-            ".top {margin-top: 0.5em; border-width: 2px; border-color: lightgray;}",
+            "hr {width: 100%;}",
+            ".hbox {display: flex; gap: 0.5em;}",
+            ".vbox {display: flex; flex-direction: column; gap: 0.5em;}",
+            ".txt {justify-content: center;}",
+            ".txt button {min-width: 5em;}",
+            ".top {margin-top: 0.5em; border: 1px solid lightgray;}",
             ".top::backdrop {background: none;}"
         ].join(" ")
     });
@@ -105,29 +108,29 @@
     const TOP = createElement("dialog", {class: "top"});
     append(BODY, TOP);
 
-    const MAIN = createElement("div", {class: "vbox", style: "gap: 1em;"});
+    const MAIN = createElement("div", {class: "vbox"});
 
-    append(MAIN, append(createElement("div", {class: "hbox", style: "gap: 0.5em;"}),
+    append(MAIN, append(createElement("div", {class: "hbox"}),
         createElement("button", {inner: "⚙️"}),
         createElement("button", {inner: "📋"}),
         createElement("button", FILL? {inner: "🔏"} : {style: "display: none;"}),
         createElement("span", {style: "flex-grow: 1;"}),
-        createElement("button", {inner: "❌"})
+        createElement("button", {inner: "❌"}),
     ));
-
+    append(MAIN, createElement("hr"));
     append(MAIN, append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
-        createElement("div", {class: "vbox", inner: "<span>Name:</span><input />"}),
-        createElement("div", {class: "vbox", inner: "<span>Key:</span><input /><input />"}),
-        createElement("div", {class: "vbox", inner: "<span>Password:</span><input />"})
+        createElement("div", {class: "vbox", inner: "<b>Name:</b><input />", style: "border-width: 1px;"}),
+        createElement("div", {class: "vbox", inner: "<b>Key:</b><input /><input />"}),
+        createElement("div", {class: "vbox", inner: "<b>Password:</b><input />"})
     ));
  
     append(TOP, MAIN);
 
     const DLG_SETTINGS = append(createElement("dialog"), append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
-        createElement("div", {class: "vbox", inner: '<span>Symbols:</span><input spellcheck="false" />'}),
-        createElement("div", {class: "vbox", inner: '<div><span>Size:</span><output></output></div><input required type="range" min="4" max="48" />'}),
-        createElement("div", {class: "vbox", inner: '<span>Extra:</span><input spellcheck="false" />'}),
-        createElement("div", {class: "hbox large", inner: '<button>✔️</button><button>❌</button>', style: "gap: 0.5em; justify-content: right;"})
+        createElement("div", {class: "vbox", inner: '<b>Symbols:</b><input spellcheck="false" />'}),
+        createElement("div", {class: "vbox", inner: '<b><span>Size:</span><output></output></b><input required type="range" min="4" max="48" />'}),
+        createElement("div", {class: "vbox", inner: '<b>Extra:</b><input spellcheck="false" />'}),
+        createElement("div", {class: "hbox txt", inner: '<button>Ok</button><button>Cancel</button>'})
     ));
     append(TOP, DLG_SETTINGS);
 
