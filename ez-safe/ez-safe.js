@@ -147,7 +147,7 @@
             inner:
                 '<div class="vbox" style="gap: 1em;">' +
                     '<div class="vbox">' +
-                        "<span>Password:</span>" +
+                        "<b>Password:</b>" +
                         `<input required minlength="${SETTINGS.min}" ${DOTS? 'placeholder="Enter password" type="password" ' : ""}/>` +
                         (DOTS? '<input placeholder="Confirm password" type="password"/>' : "") +
                     "</div>" +
@@ -171,7 +171,7 @@
         "dialog", {
             inner:
                 '<div class="vbox" style="gap: 1em; align-items: center;">' +
-                    "<span>Save data as bookmark:</span>" +
+                    "<b>Save data as bookmark:</b>" +
                     '<a href="/">data</a>' +
                     '<div class="hbox txt"><button>Close</button></div>' +
                 "</div>"
