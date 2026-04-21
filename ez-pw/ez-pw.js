@@ -92,9 +92,11 @@
         inner: [
             "body {font-family: sans-serif;}",
             "input {font-family: monospace; text-align: center;}",
-            ".hbox {display: flex;} .vbox {display: flex; flex-direction: column;} .vbox .vbox {gap: 0.25em;}",
             "dialog {margin-top: 2em; padding: 0.5em;}",
+            "dialog::backdrop {backdrop-filter: blur(2px);}",
+            ".hbox {display: flex;} .vbox {display: flex; flex-direction: column;} .vbox .vbox {gap: 0.25em;}",
             ".large button {min-width: 3em;}",
+            ".top {margin-top: 0.5em; border-width: 2px; border-color: lightgray;}",
             ".top::backdrop {background: none;}"
         ].join(" ")
     });
