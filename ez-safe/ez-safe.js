@@ -135,7 +135,7 @@
     const MAIN = append(createElement("div", {class: "vbox"}),
         createElement("div", {
             class: "hbox",
-            inner: `${["📂", "💾", "📋", "🔗", "📄", "🔓"].reduce(((a, c) => a + "<button>" + c + "</button>"), "")}${BOOKMARKLET ? `<span style="flex-grow: 1;"></span><button>❌</button>`: ''}`
+            inner: `${["📂", "💾", "📋", "🔗", "🔓"].reduce(((a, c) => a + "<button>" + c + "</button>"), "")}${BOOKMARKLET ? `<span style="flex-grow: 1;"></span><button>❌</button>`: ''}`
         }),
         createElement("hr"),
         createElement("div", {inner: `<textarea rows="${SETTINGS.rows}" cols="${SETTINGS.cols}" placeholder="Edit/Drop" wrap="off" spellcheck="false"></textarea>`})
@@ -171,7 +171,8 @@
         "dialog", {
             inner:
                 '<div class="vbox" style="gap: 1em; align-items: center;">' +
-                    "<b>Save data as bookmark:</b>" +
+                    "<b>Save as bookmark:</b>" +
+                    '<a href="/">clipboard</a>' +
                     '<a href="/">data</a>' +
                     '<div class="hbox txt"><button>Close</button></div>' +
                 "</div>"
@@ -180,11 +181,11 @@
 
     append(BODY, TOP, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK);
 
-    const [MENU_OPEN, MENU_SAVE, MENU_COPY, MENU_LINK, MENU_PAGE, MENU_RAW, MENU_QUIT] = querySelectors(MAIN, "button");
+    const [MENU_OPEN, MENU_SAVE, MENU_COPY, MENU_BOOKMARK, MENU_RAW, MENU_QUIT] = querySelectors(MAIN, "button");
     const [TEXT] = querySelectors(MAIN, "textarea");
     const [PW_OK, PW_CANCEL] = querySelectors(DLG_PASSWORD, "button");
     const [PW_ENTER, PW_CONFIRM] = querySelectors(DLG_PASSWORD, "input");
-    const [BOOKMARK] = querySelectors(DLG_BOOKMARK, "a");
+    const [BOOKMARK_CLIPBOARD, BOOKMARK_DATA] = querySelectors(DLG_BOOKMARK, "a");
 
     //
     // handlers
@@ -334,17 +335,11 @@
 
     const bookmark = link => {
         data(d => {
-            BOOKMARK.href = link(d);
+            const uri = encodeURIComponent(d);
+            BOOKMARK_CLIPBOARD.href = `javascript:navigator.clipboard.writeText("${uri}")`;
+            BOOKMARK_DATA.href = "data:text/plain;charset=utf-8," + uri;
             DLG_BOOKMARK.showModal();
         });
-    };
-
-    const link = () => {
-        bookmark(d => "javascript:" + encodeURIComponent(`navigator.clipboard.writeText("${d}");`));
-    };
-
-    const page = () => {
-        bookmark(d => "data:text/plain;charset=utf-8," + encodeURIComponent(d));
     };
 
     const open = () => {
@@ -397,9 +392,9 @@
         [MENU_OPEN, open],
         [MENU_SAVE, save],
         [MENU_COPY, copy],
-        [MENU_LINK, link],
-        [MENU_PAGE, page],
-        [BOOKMARK, preventDefault]
+        [MENU_BOOKMARK, bookmark],
+        [BOOKMARK_CLIPBOARD, preventDefault],
+        [BOOKMARK_DATA, preventDefault]
     ]) {
         m.onclick = h;
     }

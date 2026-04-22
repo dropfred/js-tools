@@ -12,14 +12,13 @@ _Note: Since `crypto` is used, a secure context (https) is required._
 
 ### Usage
 
-- `📂` / `Ctrl-O`: Open a file and replace current content. Prompt for the password if the data is encrypted.
+- `📂` / `Ctrl-O`: Open a file and replace current content. Prompt for the password if encrypted.
 - `💾` / `Ctrl-S`: Save encrypted text to a file.
 - `📋` / `Ctrl-Shift-C`: Copy encrypted text to the clipboard.
-- `🔗`: Store encrypted text as a clipboard bookmark.
-- `📄`: Store encrypted text as a data bookmark.
+- `🔗`: Store encrypted text as a bookmark.
 - `🔓`: Disable encryption/decryption.
-- `Ctrl-V`: Insert clipboard data at current position. Prompt for the password if the data is encrypted.
-- `Drop`: Replace content with dropped data. Prompt for the password if the data is encrypted.
+- `Ctrl-V`: Insert clipboard data at current position. Prompt for the password if encrypted.
+- `Drop`: Replace content with dropped data. Prompt for the password if encrypted.
 
 ### Code customization:
 
