@@ -96,16 +96,17 @@
         inner: [
             "body {font-family: sans-serif;}",
             "input {font-family: monospace; text-align: center;}",
+            "button {font-size: large;}",
             "button:disabled {opacity: 0.5;}",
             "dialog {margin-top: 2em; padding: 0.5em;}",
-            "dialog dialog::backdrop {backdrop-filter: blur(2px);}",
+            "dialog::backdrop {backdrop-filter: blur(2px);}",
             `hr {width: 100%; border-color: ${BORDER};}`,
             ".hbox {display: flex; gap: 0.5em;}",
             ".vbox {display: flex; flex-direction: column; gap: 0.5em;}",
             ".txt {justify-content: center;}",
-            ".txt button {min-width: 5em;}",
+            ".txt button {min-width: 3em;}",
             `.top {margin-top: 0.5em; border-width: 2px; border-color: ${BORDER};}`,
-            `.top::backdrop {background: ${BACK};}`
+            `.top::backdrop {background: ${BACK}; backdrop-filter: none;}`
         ].join(" ")
     });
     append(DOC.head, STYLE);
@@ -124,7 +125,7 @@
     ));
     append(MAIN, createElement("hr"));
     append(MAIN, append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
-        createElement("div", {class: "vbox", inner: "<b>Name:</b><input />", style: "border-width: 1px;"}),
+        createElement("div", {class: "vbox", inner: "<b>Name:</b><input />"}),
         createElement("div", {class: "vbox", inner: "<b>Key:</b><input /><input />"}),
         createElement("div", {class: "vbox", inner: "<b>Password:</b><input />"})
     ));
@@ -135,13 +136,14 @@
         createElement("div", {class: "vbox", inner: '<b>Symbols:</b><input spellcheck="false" />'}),
         createElement("div", {class: "vbox", inner: '<b><span>Size:</span><output></output></b><input required type="range" min="4" max="48" />'}),
         createElement("div", {class: "vbox", inner: '<b>Extra:</b><input spellcheck="false" />'}),
-        createElement("div", {class: "hbox txt", inner: '<button>Ok</button><button>Cancel</button>'})
+        createElement("div", {class: "hbox txt", inner: '<button>✔️</button><button>❌</button>'})
     ));
     append(TOP, DLG_SETTINGS);
 
     const [MENU_SETTINGS, MENU_COPY, MENU_FILL, MENU_QUIT] = querySelectorAll(MAIN, "button");
 
     const [NAME, KEY, CONFIRM, PASSWORD] = querySelectorAll(MAIN, "input");
+    window.DBG = KEY;
 
     const [SETTINGS_SYMBOLS, SETTINGS_SIZE, SETTINGS_EXTRA] = querySelectorAll(DLG_SETTINGS, "input");
     const [SETTINGS_OK, SETTINGS_CANCEL] = querySelectorAll(DLG_SETTINGS, "button");
@@ -210,7 +212,13 @@
         DLG_SETTINGS.showModal();
     });
 
-    addListener(TOP, "cancel", close);
+    addListener(TOP, "cancel", e => {
+        if (e.cancelable) {
+            e.preventDefault();
+        } else {
+            close();
+        }
+    });
 
     addListener(MENU_QUIT, "click", close);
 

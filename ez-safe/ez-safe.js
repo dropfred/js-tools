@@ -117,16 +117,18 @@
         inner: [
             "body {font-family: sans-serif;}",
             "input {font-family: monospace; text-align: center;}",
+            "button {font-size: large;}",
             "button:disabled {opacity: 0.5;}",
             "dialog {margin-top: 2em; padding: 0.5em;}",
-            "dialog dialog::backdrop {backdrop-filter: blur(2px);}",
+            "dialog::backdrop {backdrop-filter: blur(2px);}",
             `hr {width: 100%; border-color: ${BORDER};}`,
             "textarea {min-width: 25em; min-height: 15em;}",
-            ".hbox {display: flex; gap: 0.5em;} .vbox {display: flex; flex-direction: column; gap: 0.5em;}",
+            ".hbox {display: flex; gap: 0.5em;}",
+            ".vbox {display: flex; flex-direction: column; gap: 0.5em;}",
             ".txt {justify-content: center;}",
-            ".txt button {min-width: 5em;}",
+            ".txt button {min-width: 3em;}",
             `.top {margin-top: 0.5em; border-width: 2px; border-color: ${BORDER};}`,
-            `.top::backdrop {background: ${BACK};}`
+            `.top::backdrop {background: ${BACK}; backdrop-filter: none;}`
         ].join(" ")
     });
     append(DOC.head, STYLE);
@@ -152,7 +154,7 @@
                         `<input required minlength="4" ${DOTS? 'placeholder="Enter password" type="password" ' : ""}/>` +
                         (DOTS? '<input placeholder="Confirm password" type="password"/>' : "") +
                     "</div>" +
-                    '<div class="hbox txt"><button>Ok</button><button>Cancel</button></div>' +
+                    '<div class="hbox txt"><button>✔️</button><button>❌</button></div>' +
                 "</div>"
         }
     );
@@ -162,7 +164,7 @@
             inner:
                 '<div class="vbox" style="gap: 1em; align-items: center;">' +
                     '<output style="text-align: center;"></output>' +
-                    '<div class="hbox txt"><button>Close</button></div>' +
+                    '<div class="hbox txt"><button>✖️</button></div>' +
                 "</div>",
             style: "border-color: red;"
         }
@@ -175,7 +177,7 @@
                     "<b>Save as bookmark:</b>" +
                     '<a href="/">clipboard</a>' +
                     '<a href="/">data</a>' +
-                    '<div class="hbox txt"><button>Close</button></div>' +
+                    '<div class="hbox txt"><button>✖️</button></div>' +
                 "</div>"
         }
     );
@@ -380,7 +382,14 @@
         });
     };
 
-    addListener(TOP, "cancel", close);
+    addListener(TOP, "cancel", e => {
+        if (e.cancelable) {
+            preventDefault(e);
+        } else {
+            close();
+        }
+    });
+
     if (BOOKMARKLET) {
         addListener(MENU_QUIT, "click", close);
     }
