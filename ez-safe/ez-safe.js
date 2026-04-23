@@ -1,13 +1,7 @@
 "use strict";
 
 (() => {
-    const SETTINGS = {
-        rows: 15, cols: 40,
-        min: 4,
-        fmt: 80
-    };
-
-    // colors
+    // ui colors
     const BACK         = "white";
     const BORDER       = "lightgray";
 
@@ -17,6 +11,7 @@
     const DND          = true;  // handle drag and drop
     const KBD          = true;  // handle ctrl-c and ctrl-s
     const DBG          = false; // log errors
+    const FMT          = 80;    // formatting max length (0 means no formatting)
 
     const DOC = document;
     const BODY = DOC.body;
@@ -126,6 +121,7 @@
             "dialog {margin-top: 2em; padding: 0.5em;}",
             "dialog dialog::backdrop {backdrop-filter: blur(2px);}",
             `hr {width: 100%; border-color: ${BORDER};}`,
+            "textarea {min-width: 25em; min-height: 15em;}",
             ".hbox {display: flex; gap: 0.5em;} .vbox {display: flex; flex-direction: column; gap: 0.5em;}",
             ".txt {justify-content: center;}",
             ".txt button {min-width: 5em;}",
@@ -143,7 +139,7 @@
             inner: `${["📂", "💾", "📋", "🔗", "🔓"].reduce(((a, c) => a + "<button>" + c + "</button>"), "")}${BOOKMARKLET ? `<span style="flex-grow: 1;"></span><button>❌</button>`: ''}`
         }),
         createElement("hr"),
-        createElement("div", {inner: `<textarea rows="${SETTINGS.rows}" cols="${SETTINGS.cols}" placeholder="Edit/Drop" wrap="off" spellcheck="false"></textarea>`})
+        createElement("div", {inner: `<textarea placeholder="Edit/Drop" wrap="off" spellcheck="false"></textarea>`})
     );
     append(TOP, MAIN);
 
@@ -153,7 +149,7 @@
                 '<div class="vbox" style="gap: 1em;">' +
                     '<div class="vbox">' +
                         "<b>Password:</b>" +
-                        `<input required minlength="${SETTINGS.min}" ${DOTS? 'placeholder="Enter password" type="password" ' : ""}/>` +
+                        `<input required minlength="4" ${DOTS? 'placeholder="Enter password" type="password" ' : ""}/>` +
                         (DOTS? '<input placeholder="Confirm password" type="password"/>' : "") +
                     "</div>" +
                     '<div class="hbox txt"><button>Ok</button><button>Cancel</button></div>' +
@@ -249,7 +245,7 @@
             };
 
             const keyup = evt => {
-                let valid = !confirm || (PW_ENTER.value.length >= SETTINGS.min);
+                let valid = !confirm || (PW_ENTER.value.length >= 4);
                 if (DOTS) if (confirm) {
                     valid &&= PW_ENTER.value == PW_CONFIRM.value;
                 }
@@ -335,7 +331,7 @@
     };
 
     const copy = () => {
-        data(d => {navigator.clipboard.writeText(format(d, SETTINGS.fmt));});
+        data(d => {navigator.clipboard.writeText(format(d, FMT));});
     };
 
     const bookmark = link => {
@@ -372,7 +368,7 @@
 
     const save = () => {
         data(d => {
-            const blob = new Blob([format(d, SETTINGS.fmt)], {type: "text/plain"});
+            const blob = new Blob([format(d, FMT)], {type: "text/plain"});
             const url = URL.createObjectURL(blob);
             const a = createElement("a");
             a.href = url;
