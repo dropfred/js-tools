@@ -15,6 +15,10 @@
     const FILL = true;
     const DOTS = false;
 
+    // colors
+    const BACK   = "white";
+    const BORDER = "lightgray";
+
     //
     // help minifier
     //
@@ -94,14 +98,14 @@
             "input {font-family: monospace; text-align: center;}",
             "button:disabled {opacity: 0.5;}",
             "dialog {margin-top: 2em; padding: 0.5em;}",
-            "dialog::backdrop {backdrop-filter: blur(2px);}",
-            "hr {width: 100%;}",
+            "dialog dialog::backdrop {backdrop-filter: blur(2px);}",
+            `hr {width: 100%; border-color: ${BORDER};}`,
             ".hbox {display: flex; gap: 0.5em;}",
             ".vbox {display: flex; flex-direction: column; gap: 0.5em;}",
             ".txt {justify-content: center;}",
             ".txt button {min-width: 5em;}",
-            ".top {margin-top: 0.5em; border: 1px solid lightgray;}",
-            ".top::backdrop {background: none;}"
+            `.top {margin-top: 0.5em; border-width: 2px; border-color: ${BORDER};}`,
+            `.top::backdrop {background: ${BACK};}`
         ].join(" ")
     });
     append(DOC.head, STYLE);

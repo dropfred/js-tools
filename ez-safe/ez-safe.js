@@ -7,6 +7,10 @@
         fmt: 80
     };
 
+    // colors
+    const BACK         = "white";
+    const BORDER       = "lightgray";
+
     const MAGIC        = "🔒";  // encrypted data magic prefix
     const BOOKMARKLET  = true;  // exit button
     const DOTS         = true;  // use password inputs
@@ -120,13 +124,13 @@
             "input {font-family: monospace; text-align: center;}",
             "button:disabled {opacity: 0.5;}",
             "dialog {margin-top: 2em; padding: 0.5em;}",
-            "dialog::backdrop {backdrop-filter: blur(2px);}",
-            "hr {width: 100%;}",
+            "dialog dialog::backdrop {backdrop-filter: blur(2px);}",
+            `hr {width: 100%; border-color: ${BORDER};}`,
             ".hbox {display: flex; gap: 0.5em;} .vbox {display: flex; flex-direction: column; gap: 0.5em;}",
             ".txt {justify-content: center;}",
             ".txt button {min-width: 5em;}",
-            ".top {margin-top: 0.5em; border-width: 2px; border-color: lightgray;}",
-            ".top::backdrop {background: none;}"
+            `.top {margin-top: 0.5em; border-width: 2px; border-color: ${BORDER};}`,
+            `.top::backdrop {background: ${BACK};}`
         ].join(" ")
     });
     append(DOC.head, STYLE);
@@ -180,7 +184,7 @@
         }
     );
 
-    append(BODY, TOP, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK);
+    append(BODY, append(TOP, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK));
 
     const [MENU_OPEN, MENU_SAVE, MENU_COPY, MENU_BOOKMARK, MENU_RAW, MENU_QUIT] = querySelectors(MAIN, "button");
     const [TEXT] = querySelectors(MAIN, "textarea");
@@ -195,7 +199,7 @@
     // restore host page
     const close = () => {
         remove(DOC.head, STYLE);
-        for (const e of [TOP, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK]) remove(BODY, e);
+        remove(BODY, TOP);
 
         for (const b of BK.ss) {
             b.s.disabled = b.d;
