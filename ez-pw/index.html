@@ -29,7 +29,7 @@
         const bookmarklet = document.getElementById("bookmarklet");
         const links = document.querySelectorAll("a");
         const inputs = document.querySelectorAll("input");
-        fetch("./ez-pw-min.js").then(src => src.text()).then(src => {
+        fetch(`./ez-safe-min.js?do_not_cache=${new Date().getTime()}`).then(src => src.text()).then(src => {
             bookmarklet.href = "javascript:" + encodeURIComponent(src);
         });
         for (const a of links) {a.onclick = () => {for (const i of inputs) {i.value = "";}}}

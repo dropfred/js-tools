@@ -23,7 +23,7 @@
         Run minified source: <a id="bookmarklet">ez-safe</a> (Save link as bookmark to install)
     </p>
     <script>
-        fetch("./ez-safe-min.js").then(src => src.text()).then(src => {
+        fetch(`./ez-safe-min.js?do_not_cache=${new Date().getTime()}`).then(src => src.text()).then(src => {
             document.getElementById("bookmarklet").href = "javascript:" + encodeURIComponent(src);
         });
     </script>
