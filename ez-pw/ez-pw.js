@@ -100,7 +100,7 @@
             "button:disabled {opacity: 0.5;}",
             "dialog {margin-top: 2em; padding: 0.5em;}",
             "dialog::backdrop {backdrop-filter: blur(2px);}",
-            `hr {width: 100%; border-color: ${BORDER};}`,
+            `hr {width: 100%; border-color: ${BORDER}; opacity: 0.5;}`,
             ".hbox {display: flex; gap: 0.5em;}",
             ".vbox {display: flex; flex-direction: column; gap: 0.5em;}",
             ".txt {justify-content: center;}",
