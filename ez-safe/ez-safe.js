@@ -445,7 +445,7 @@
     //
 
     if (!crypto.subtle) {
-        [MENU_COPY, MENU_SAVE, TEXT].forEach(e => e.disabled = true);
+        [MENU_OPEN, MENU_SAVE, MENU_COPY, MENU_BOOKMARK, MENU_RAW, TEXT].forEach(e => e.disabled = true);
         TEXT.placeholder = "Insecure context"
         TEXT.style.color = "red";
     }
