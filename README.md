@@ -2,6 +2,8 @@
 
 Mini tools running as bookmarklets I made for my personnal usage.
 
+_Note: The tools may not work correctly on pages that have policies preventing the usage of styles in the bookmarklet._
+
 ## ez-safe
 
 Basic encryption/decryption pad.
@@ -12,21 +14,21 @@ _Note: Since `crypto` is used, a secure context (https) is required._
 
 ### Usage
 
-- `📂` / `Ctrl-O`: Open a file and replace current content. Prompt for the password if encrypted.
+- `📂` / `Ctrl-O`: Open a file and replace current content. Prompt for the password if the data is encrypted.
 - `💾` / `Ctrl-S`: Save encrypted text to a file.
 - `📋` / `Ctrl-Shift-C`: Copy encrypted text to the clipboard.
 - `🔗`: Store encrypted text as a bookmark.
 - `🔓`: Disable encryption/decryption.
-- `Ctrl-V`: Insert clipboard data at current position. Prompt for the password if encrypted.
-- `Drop`: Replace content with dropped data. Prompt for the password if encrypted.
+- `Ctrl-V`: Insert clipboard data at current position. Prompt for the password if the data is encrypted.
+- `Drop`: Replace content with dropped data. Prompt for the password if the data is encrypted.
 
 ### Code customization:
 
 - `MAGIC`: Prefix string used to distinguish encrypted data from plain text. Defaults to `🔒`.
 - `BOOKMARKLET`: Specify whether the code is intended to be used as a bookmarklet. Defaults to `true`.
 - `DOTS`: Use `password` inputs if `true`, plain text otherwise. Defaults to `true`.
-- `DND`: Drag and drop support if `true`. Defaults to `true`.
-- `KBD`: Support for `ctrl-c` / `ctrl-v` and `ctrl-s` if `true`. Defaults to `true`.
+- `DND`: Support drag and drop if `true`. Defaults to `true`.
+- `KBD`: Support keyboard  if `true`. Defaults to `true`.
 - `FMT`: Base64-encoded data line length (0 means no formatting). Defaults to 80.
 - `DBG`: Log errors if `true`. Defaults to `false`.
 
