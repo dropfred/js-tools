@@ -1,9 +1,9 @@
 "use strict";
 
 (() => {
-    // ui colors
-    const BACK         = "white";
-    const BORDER       = "lightgray";
+    const BG     = "white";
+    const BORDER = "lightgray";
+    const CLOSE  = "none";
 
     const MAGIC        = "🔒";  // encrypted data magic prefix
     const BOOKMARKLET  = true;  // exit button
@@ -128,22 +128,22 @@
             ".txt {justify-content: center;}",
             ".txt button {min-width: 3em;}",
             `.top {margin-top: 0.5em; border-width: 2px; border-color: ${BORDER};}`,
-            `.top::backdrop {background: ${BACK}; backdrop-filter: none;}`
+            `.top::backdrop {background: ${BG}; backdrop-filter: none;}`
         ].join(" ")
     });
     append(DOC.head, STYLE);
  
-    const TOP = createElement("dialog", {class: "top"});
+    const TOP = createElement("div");
 
-    const MAIN = append(createElement("div", {class: "vbox"}),
+    const MAIN = append(createElement("dialog", {class: "top"}), append(createElement("div", {class: "vbox"}),
         createElement("div", {
             class: "hbox",
             inner: `${["📂", "💾", "📋", "🔗", "🔓"].reduce(((a, c) => a + "<button>" + c + "</button>"), "")}${BOOKMARKLET ? `<span style="flex-grow: 1;"></span><button>❌</button>`: ''}`
         }),
         createElement("hr"),
         createElement("div", {inner: `<textarea placeholder="Edit/Drop" wrap="off" spellcheck="false"></textarea>`})
-    );
-    append(TOP, MAIN);
+    ));
+    if (CLOSE) MAIN.closedBy = CLOSE;
 
     const DLG_PASSWORD = createElement(
         "dialog", {
@@ -182,7 +182,7 @@
         }
     );
 
-    append(BODY, append(TOP, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK));
+    append(BODY, append(TOP, MAIN, DLG_PASSWORD, DLG_ERROR, DLG_BOOKMARK));
 
     const [MENU_OPEN, MENU_SAVE, MENU_COPY, MENU_BOOKMARK, MENU_RAW, MENU_QUIT] = querySelectors(MAIN, "button");
     const [TEXT] = querySelectors(MAIN, "textarea");
@@ -382,13 +382,7 @@
         });
     };
 
-    addListener(TOP, "cancel", e => {
-        if (e.cancelable) {
-            preventDefault(e);
-        } else {
-            close();
-        }
-    });
+    addListener(MAIN, "cancel", close);
 
     if (BOOKMARKLET) {
         addListener(MENU_QUIT, "click", close);
@@ -450,5 +444,5 @@
         TEXT.style.color = "red";
     }
 
-    TOP.showModal();
+    MAIN.showModal();
 })();

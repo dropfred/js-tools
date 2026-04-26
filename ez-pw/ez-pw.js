@@ -15,9 +15,9 @@
     const FILL = true;
     const DOTS = false;
 
-    // colors
-    const BACK   = "white";
+    const BG     = "white";
     const BORDER = "lightgray";
+    const CLOSE  = "none";
 
     //
     // help minifier
@@ -106,30 +106,31 @@
             ".txt {justify-content: center;}",
             ".txt button {min-width: 3em;}",
             `.top {margin-top: 0.5em; border-width: 2px; border-color: ${BORDER};}`,
-            `.top::backdrop {background: ${BACK}; backdrop-filter: none;}`
+            `.top::backdrop {background: ${BG}; backdrop-filter: none;}`
         ].join(" ")
     });
     append(DOC.head, STYLE);
 
-    const TOP = createElement("dialog", {class: "top"});
+    const TOP = createElement("div");
     append(BODY, TOP);
 
-    const MAIN = createElement("div", {class: "vbox"});
+    const MAIN = append(createElement("dialog", {class: "top"}), append(createElement("div", {class: "vbox"}),
+        append(createElement("div", {class: "hbox"}),
+            createElement("button", {inner: "⚙️"}),
+            createElement("button", {inner: "📋"}),
+            createElement("button", FILL? {inner: "🔏"} : {style: "display: none;"}),
+            createElement("span", {style: "flex-grow: 1;"}),
+            createElement("button", {inner: "❌"})
+        ),
+        createElement("hr"),
+        append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
+            createElement("div", {class: "vbox", inner: "<b>Name:</b><input />"}),
+            createElement("div", {class: "vbox", inner: "<b>Key:</b><input /><input />"}),
+            createElement("div", {class: "vbox", inner: "<b>Password:</b><input />"})
+        )
+    ));
+    if (CLOSE) MAIN.closedBy = CLOSE;
 
-    append(MAIN, append(createElement("div", {class: "hbox"}),
-        createElement("button", {inner: "⚙️"}),
-        createElement("button", {inner: "📋"}),
-        createElement("button", FILL? {inner: "🔏"} : {style: "display: none;"}),
-        createElement("span", {style: "flex-grow: 1;"}),
-        createElement("button", {inner: "❌"}),
-    ));
-    append(MAIN, createElement("hr"));
-    append(MAIN, append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
-        createElement("div", {class: "vbox", inner: "<b>Name:</b><input />"}),
-        createElement("div", {class: "vbox", inner: "<b>Key:</b><input /><input />"}),
-        createElement("div", {class: "vbox", inner: "<b>Password:</b><input />"})
-    ));
- 
     append(TOP, MAIN);
 
     const DLG_SETTINGS = append(createElement("dialog"), append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
@@ -211,13 +212,7 @@
         DLG_SETTINGS.showModal();
     });
 
-    addListener(TOP, "cancel", e => {
-        if (e.cancelable) {
-            e.preventDefault();
-        } else {
-            close();
-        }
-    });
+    addListener(TOP, "cancel", close);
 
     addListener(MENU_QUIT, "click", close);
 
@@ -235,7 +230,7 @@
     addListener(SETTINGS_CANCEL, "click", () => DLG_SETTINGS.close());
 
     update();
-    TOP.showModal();
+    MAIN.showModal();
 
     //
     // check if crypto is available, disable everything otherwise.
