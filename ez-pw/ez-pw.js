@@ -133,7 +133,7 @@
     append(TOP, MAIN);
 
     const DLG_SETTINGS = append(createElement("dialog"), append(createElement("div", {class: "vbox", style: "gap: 1em;"}),
-        createElement("div", {class: "vbox", inner: '<b>Symbols:</b><input spellcheck="false" />'}),
+        createElement("div", {class: "vbox", inner: '<b>Symbols:</b><input spellcheck="false" minlength="1" />'}),
         createElement("div", {class: "vbox", inner: '<b><span>Size:</span><output></output></b><input required type="range" min="4" max="48" />'}),
         createElement("div", {class: "vbox", inner: '<b>Extra:</b><input spellcheck="false" />'}),
         createElement("div", {class: "hbox txt", inner: '<button>✔️</button><button>❌</button>'})
@@ -143,7 +143,6 @@
     const [MENU_SETTINGS, MENU_COPY, MENU_FILL, MENU_QUIT] = querySelectorAll(MAIN, "button");
 
     const [NAME, KEY, CONFIRM, PASSWORD] = querySelectorAll(MAIN, "input");
-    window.DBG = KEY;
 
     const [SETTINGS_SYMBOLS, SETTINGS_SIZE, SETTINGS_EXTRA] = querySelectorAll(DLG_SETTINGS, "input");
     const [SETTINGS_OK, SETTINGS_CANCEL] = querySelectorAll(DLG_SETTINGS, "button");

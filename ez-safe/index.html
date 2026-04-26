@@ -6,6 +6,7 @@
 </head>
 <body>
     <h1>Random page</h1>
+    <hr />
     <p>
         <div>The data below should be decrypted as <i>secret</i> using password <i><code>1234</code></i>:</div>
         <div style="margin: 1em; display: flex; flex-direction: column; gap: 0.5em;">
@@ -16,7 +17,7 @@
     </p>
     <hr />
     <p>
-        Run plain source: <a id="plain" href="javascript:import(`./ez-safe.js?do_not_cache=${new Date().getTime()}`);">ez-safe</a>
+        <button onclick="javascript:import(`./ez-safe.js?do_not_cache=${new Date().getTime()}`);">Run plain source</button>
     </p>
     <hr />
     <p>
