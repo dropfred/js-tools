@@ -382,7 +382,13 @@
         });
     };
 
-    addListener(MAIN, "cancel", close);
+    addListener(MAIN, "cancel", e => {
+        if (e.cancelable) {
+            preventDefault(e);
+        } else {
+            close();
+        }
+    });
 
     if (BOOKMARKLET) {
         addListener(MENU_QUIT, "click", close);

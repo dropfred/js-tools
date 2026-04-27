@@ -212,7 +212,13 @@
         DLG_SETTINGS.showModal();
     });
 
-    addListener(TOP, "cancel", close);
+    addListener(MAIN, "cancel", e => {
+        if (e.cancelable) {
+            preventDefault(e);
+        } else {
+            close();
+        }
+    });
 
     addListener(MENU_QUIT, "click", close);
 
